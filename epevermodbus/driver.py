@@ -287,6 +287,20 @@ class EpeverChargeController(minimalmodbus.Instrument):
             12: "LI_NICOMN_O2",
         }[self.retriable_read_register(0x9000, 0, 3)]
 
+    def set_battery_type(self, name):
+        """Battery type"""
+        val = {
+            "USER_DEFINED": 0,
+            "SEALED": 1,
+            "GEL": 2,
+            "FLOODED": 3,
+            "LIFEPO4": 4,
+            "LI_NICOMN_O2": 8,
+        }.get(name)
+        if val == None:
+            raise ValueError("Unrecognized battery type")
+        return self.write_register(0x9000, val)
+
     def get_battery_capacity(self):
         """Battery capacity in amp hours"""
         return self.retriable_read_register(0x9001, 0, 3)
@@ -428,9 +442,17 @@ class EpeverChargeController(minimalmodbus.Instrument):
         """Equalize duration"""
         return self.retriable_read_register(0x906B, 0, 3)
 
-    def get_boost_duration(self):
+    def set_equalize_duration(self, duration):
         """Equalize duration"""
+        return self.write_register(0x906B, duration)
+
+    def get_boost_duration(self):
+        """Boost duration"""
         return self.retriable_read_register(0x906C, 0, 3)
+
+    def set_boost_duration(self, duration):
+        """Boost duration"""
+        return self.write_register(0x906C, duration)
 
     def get_battery_discharge(self):
         """Battery discharge"""
