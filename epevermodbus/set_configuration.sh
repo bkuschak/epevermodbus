@@ -38,10 +38,13 @@ PORTNAME=/dev/ttyS5
 # Minimum voltage at zero SOC is about 10.0V, but we set it higher to avoid 100% depth of discharge.
 # 11.3V is around 5% SoC.
 # Note: The voltages seem to be required to be set in decreasing order, or they won't take effect.
+# User Manual says: When the default battery type is selected, the battery voltage
+# control parameters will be set by default and can‟t be changed. To change
+# these parameters, select "User" battery type.
 
 python3 command_line.py \
     --portname ${PORTNAME} \
-    --set-battery-type LIFEPO4 \
+    --set-battery-type USER_DEFINED \
     --set-battery-capacity 100 \
     --set-over-voltage-disconnect-voltage 14.7 \
     --set-over-voltage-reconnect-voltage 14.6 \
@@ -49,7 +52,7 @@ python3 command_line.py \
     --set-equalize-charging-voltage 14.55 \
     --set-boost-charging-voltage 14.5 \
     --set-float-charging-voltage 13.5 \
-    --set-boost-reconnect-charging-voltage 13.3 \
+    --set-boost-reconnect-charging-voltage 13.4 \
     --set-low-voltage-reconnect-voltage 12.4 \
     --set-low-voltage-disconnect-voltage 11.3 \
     --set-discharging-limit-voltage 11.3 \
