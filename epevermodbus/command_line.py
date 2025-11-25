@@ -101,6 +101,26 @@ def main():
         help="Set the equalize voltage duration and exit",
         type=float
     )
+    parser.add_argument(
+        "--set-low-temp-charging-limit",
+        help="Set the low temperature limit (-40C to 10C) for charging and exit",
+        type=float
+    )
+    parser.add_argument(
+        "--set-low-temp-discharging-limit",
+        help="Set the low temperature limit (-40C to 10C) for discharging and exit",
+        type=float
+    )
+    parser.add_argument(
+        "--disable-low-temp-charging-limit",
+        help="Disable the low temperature limit for charging and exit",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--disable-low-temp-discharging-limit",
+        help="Disable the low temperature limit for discharging and exit",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     controller = EpeverChargeController(args.portname, args.slaveaddress, args.baudrate)
@@ -221,6 +241,28 @@ def main():
         controller.set_equalize_duration(args.set_equalize_duration)
         print(f"New equalize duration: {controller.get_equalize_duration()} min")
 
+    if args.set_low_temp_charging_limit is not None:
+        print(f"Old low temperature charging limit: {controller.get_low_temperature_charging_limit()}°C")
+        controller.set_low_temperature_charging_limit(args.set_low_temp_charging_limit)
+        controller.set_low_temperature_charging_limit_enabled(True)
+        print(f"New low temperature charging limit: {controller.get_low_temperature_charging_limit()}°C")
+
+    if args.set_low_temp_discharging_limit is not None:
+        print(f"Old low temperature discharging limit: {controller.get_low_temperature_discharging_limit()}°C")
+        controller.set_low_temperature_discharging_limit(args.set_low_temp_discharging_limit)
+        controller.set_low_temperature_discharging_limit_enabled(True)
+        print(f"New low temperature discharging limit: {controller.get_low_temperature_discharging_limit()}°C")
+
+    if args.disable_low_temp_charging_limit:
+        print(f"Old low temperature charging limit enabled: {controller.get_low_temperature_charging_limit_enabled()}")
+        controller.set_low_temperature_charging_limit_enabled(False)
+        print(f"New low temperature charging limit enabled: {controller.get_low_temperature_charging_limit_enabled()}")
+
+    if args.disable_low_temp_discharging_limit:
+        print(f"Old low temperature discharging limit enabled: {controller.get_low_temperature_discharging_limit_enabled()}")
+        controller.set_low_temperature_discharging_limit_enabled(False)
+        print(f"New low temperature charging limit enabled: {controller.get_low_temperature_charging_limit_enabled()}")
+
     if any([
         args.set_time,
         args.set_battery_type,
@@ -238,8 +280,12 @@ def main():
         args.set_low_voltage_reconnect_voltage,
         args.set_under_voltage_warning_voltage,
         args.set_under_voltage_recover_voltage,
-        args.set_boost_duration,
-        args.set_equalize_duration,
+        args.set_boost_duration is not None,
+        args.set_equalize_duration is not None,
+        args.set_low_temp_charging_limit is not None,
+        args.set_low_temp_discharging_limit is not None,
+        args.disable_low_temp_charging_limit,
+        args.disable_low_temp_discharging_limit,
     ]):
         exit(0)
 
@@ -302,6 +348,10 @@ def main():
         output["battery_discharge"] = controller.get_battery_discharge()
         output["battery_charge"] = controller.get_battery_charge()
         output["charging_mode"] = controller.get_charging_mode()
+        output["low_temperature_charging_limit"] = controller.get_low_temperature_charging_limit()
+        output["low_temperature_discharging_limit"] = controller.get_low_temperature_discharging_limit()
+        output["low_temperature_charging_limit_enabled"] = controller.get_low_temperature_charging_limit_enabled()
+        output["low_temperature_discharging_limit_enabled"] = controller.get_low_temperature_discharging_limit_enabled()
         print(json.dumps(output))
     else:
         print("Real Time Data")
@@ -350,7 +400,7 @@ def main():
         print(f"Total generated energy: {controller.get_total_generated_energy()}kWh")
         print(f"Current device time: {controller.get_rtc()}")
         print("\n")
-    
+
         print("Battery Parameters:")
         print(
             f"Rated charging current: {controller.get_rated_charging_current()}A")
@@ -404,6 +454,10 @@ def main():
         print(f"Battery discharge: {controller.get_battery_discharge()}%")
         print(f"Battery charge: {controller.get_battery_charge()}%")
         print(f"Charging mode: {controller.get_charging_mode()}")
+        print(f"Low temperature charging limit: {controller.get_low_temperature_charging_limit()}")
+        print(f"Low temperature discharging limit: {controller.get_low_temperature_discharging_limit()}")
+        print(f"Low temperature charging limit enabled: {controller.get_low_temperature_charging_limit_enabled()}")
+        print(f"Low temperature discharging limit enabled: {controller.get_low_temperature_discharging_limit_enabled()}")
 
 
 if __name__ == "__main__":

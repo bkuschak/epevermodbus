@@ -508,6 +508,52 @@ class EpeverChargeController(minimalmodbus.Instrument):
         """Generated energy this year"""
         return self.retriable_read_long(0x3310, 4) / 100
 
+    def get_low_temperature_charging_limit(self):
+        """Low temperature limit for charging"""
+        return self.retriable_read_register(0x9010, 2, 3, signed=True)
+
+    def get_low_temperature_discharging_limit(self):
+        """Low temperature limit for discharging"""
+        return self.retriable_read_register(0x9011, 2, 3, signed=True)
+
+    def set_low_temperature_charging_limit(self, value: float):
+        """Low temperature limit for charging. Must be separately enabled"""
+        return self.write_register(0x9010, value*100, signed=True)
+
+    def set_low_temperature_discharging_limit(self, value: float):
+        """Low temperature limit for discharging. Must be separately enabled"""
+        return self.write_register(0x9011, value*100, signed=True)
+
+    def get_low_temperature_charging_limit_enabled(self):
+        """Is the low temperature limit for charging enabled"""
+        register_value = self.retriable_read_register(0x9107, 0, 3)
+        charging_limit_enabled = bool(extract_bits(register_value, 8, 0b1))
+        return charging_limit_enabled
+
+    def get_low_temperature_discharging_limit_enabled(self):
+        """Is the low temperature limit for discharging enabled"""
+        register_value = self.retriable_read_register(0x9107, 0, 3)
+        discharging_limit_enabled = bool(extract_bits(register_value, 9, 0b1))
+        return discharging_limit_enabled
+
+    def set_low_temperature_charging_limit_enabled(self, enabled: bool):
+        """Enable/disable the low temperature limit for charging"""
+        register_value = self.retriable_read_register(0x9107, 0, 3)
+        if enabled:
+            register_value |= (1<<8)
+        else:
+            register_value &= ~(1<<8)
+        return self.write_register(0x9107, register_value)
+
+    def set_low_temperature_discharging_limit_enabled(self, enabled: bool):
+        """Enable/disable the low temperature limit for discharging"""
+        register_value = self.retriable_read_register(0x9107, 0, 3)
+        if enabled:
+            register_value |= (1<<9)
+        else:
+            register_value &= ~(1<<9)
+        return self.write_register(0x9107, register_value)
+
     def get_rtc(self):
         """
         Reads the RTC.
