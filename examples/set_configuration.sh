@@ -20,6 +20,7 @@
 
 
 PORTNAME=/dev/ttyS5
+PYSCRIPT_PATH="../epevermodbus"
 
 # This is for a Lead Acid AGM battery
 #python3 command_line.py \
@@ -42,7 +43,7 @@ PORTNAME=/dev/ttyS5
 # control parameters will be set by default and can‟t be changed. To change
 # these parameters, select "User" battery type.
 
-python3 command_line.py \
+python3 ${PYSCRIPT_PATH}/command_line.py \
     --portname ${PORTNAME} \
     --set-battery-type USER_DEFINED \
     --set-battery-capacity 100 \
@@ -58,8 +59,10 @@ python3 command_line.py \
     --set-discharging-limit-voltage 11.3 \
     --set-equalize-duration 0 \
     --set-boost-duration 180 \
+    --set-low-temp-charging-limit 2 \
+    --set-low-temp-discharging-limit -20 \
     --set-time
 echo
 
-python3 command_line.py \
+python3 ${PYSCRIPT_PATH}/command_line.py \
     --portname ${PORTNAME}
